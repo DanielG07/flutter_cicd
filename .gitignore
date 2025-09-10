@@ -1,0 +1,88 @@
+# -----------------------
+# Dart / Flutter
+# -----------------------
+.dart_tool/
+.packages
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.melos_tool/
+
+# Android
+**/android/.gradle/
+**/android/captures/
+**/android/.idea/
+**/android/local.properties
+**/android/app/debug
+**/android/app/profile
+**/android/app/release
+**/android/key.properties
+**/android/*.keystore
+**/android/*.jks
+
+# iOS
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/.generated/
+**/ios/Flutter/App.framework
+**/ios/Flutter/engine/
+**/ios/.last_build_id
+
+# macOS
+**/macos/Pods/
+**/macos/Flutter/ephemeral/
+
+# Windows
+**/windows/Flutter/ephemeral/
+
+# Linux
+**/linux/Flutter/ephemeral/
+
+# Web
+**/web/.dart_tool/
+**/web/.firebase/
+
+# -----------------------
+# IDE / Editor
+# -----------------------
+.idea/
+.vscode/
+*.iml
+
+# -----------------------
+# Melos / Monorepo
+# -----------------------
+melos_workspace.yaml.lock
+.dart_tool/
+.melos_tool/
+
+# -----------------------
+# Logs / Temp
+# -----------------------
+*.log
+*.tmp
+*.swp
+*.lock
+pubspec.lock
+pubspec_overrides.yaml
+
+# -----------------------
+# GitHub Actions
+# -----------------------
+# (dejar .github/workflows/ pero ignorar runs/cache)
+.github/workflows/*.tmp
+.github/workflows/*.bak
+.github/actions-runs/
+.github/cache/
+
+# -----------------------
+# Otros
+# -----------------------
+coverage/
+*.g.dart
+*.freezed.dart

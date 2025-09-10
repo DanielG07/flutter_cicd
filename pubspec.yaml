@@ -1,0 +1,30 @@
+name: flutter_cicd
+publish_to: none
+environment:
+  sdk: ^3.9.0
+workspace:
+  - "packages/flutter_application_1"
+melos:
+  scripts:
+    generate:
+      run: melos exec -c 1 --depends-on build_runner -- dart run build_runner build
+    analyze:
+      run: melos exec -- flutter analyze
+      description: Run 'flutter analyze' in all packages.
+    test:
+      run: melos exec -- flutter test
+      description: Run 'flutter test' in all packages.
+    build_apk:
+      run: melos exec --scope="flutter_application_1" -- flutter build apk
+      description: Build the app package.
+    run_app:
+      run: melos exec --scope="flutter_application_1" --flutter -- "flutter run -d Chrome"
+      description: Run the specified Flutter application.
+    run_app_flutter:
+      run: cd packages/flutter_application_1 && flutter run -d Chrome
+      description: Run the specified Flutter application.
+    version:
+      run: melos version --no-git-tag-version
+      description: Version all packages that have been updated since the last release.
+dev_dependencies:
+  melos: ^7.1.0
