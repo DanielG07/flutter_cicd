@@ -30,13 +30,6 @@ jobs:
       - name: Melos test
         run: melos run test
 
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        with:
-          projectBaseDir: packages/flutter_application_1
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
   sonarqube:
     runs-on: ubuntu-latest
     env:
@@ -55,12 +48,10 @@ jobs:
           build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} build-command
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5.3.1
-        with:
-          projectBaseDir: packages/flutter_application_1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          # Consult https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/scanners/sonarscanner/ for more information and options
+          projectBaseDir: packages/flutter_application_1
           args: >
             --define sonar.cfamily.compile-commands="${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
 
