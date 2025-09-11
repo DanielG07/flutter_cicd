@@ -5,6 +5,13 @@ on:
     branches:
       - staging
       - prod
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  pull-requests: write
 
 jobs:
   check-branch:
@@ -15,11 +22,21 @@ jobs:
 
           if [[ "${{ github.event.pull_request.base.ref }}" == "staging" && "${{ github.event.pull_request.head.ref }}" != "dev" ]]; then
             echo "❌ Solo se permiten PRs desde dev hacia staging"
+            curl -s -X PATCH \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} \
+            -d '{"state":"closed"}'
             exit 1
           fi
 
           if [[ "${{ github.event.pull_request.base.ref }}" == "prod" && "${{ github.event.pull_request.head.ref }}" != "staging" ]]; then
             echo "❌ Solo se permiten PRs desde staging hacia prod"
+            curl -s -X PATCH \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} \
+            -d '{"state":"closed"}'
             exit 1
           fi
 
