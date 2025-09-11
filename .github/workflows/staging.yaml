@@ -76,7 +76,7 @@ jobs:
 name: Staging Push
 
 on:
-  pull_request:
+  push:
     branches:
       - staging
 
