@@ -1,0 +1,141 @@
+name: CI Prod
+
+on:
+  workflow_run:
+    workflows: ["CI Staging"]
+    types:
+      - completed
+    branches:
+      - prod
+
+jobs:
+  pro-validate:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ vars.FLUTTER_VERSION }}
+          channel: "stable"
+
+      - name: Install Melos
+        run: dart pub global activate melos
+
+      - name: Melos bootstrap
+        run: melos bootstrap
+
+      - name: Melos analyze
+        run: melos run analyze
+
+      - name: Melos test
+        run: melos run test
+
+  pro-build-android:
+    needs: [pro-validate]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: ${{ vars.JAVA_VERSION }}
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ vars.FLUTTER_VERSION }}
+          channel: "stable"
+
+      - name: Install Melos
+        run: dart pub global activate melos
+
+      - name: Melos bootstrap
+        run: melos bootstrap
+
+      - name: Build Android App
+        run: melos build_apk
+
+      - name: Upload Android Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build
+          path: packages/flutter_application_1/build/app/outputs/flutter-apk/app-release.apk
+
+  pro-build-ios:
+    needs: [pro-validate]
+    runs-on: macos-latest
+    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # - name: Set up Java
+      #   uses: actions/setup-java@v3
+      #   with:
+      #     distribution: "zulu"
+      #     java-version: ${{ vars.JAVA_VERSION }}
+
+      # - name: Install Flutter
+      #   uses: subosito/flutter-action@v2
+      #   with:
+      #     flutter-version: ${{ vars.FLUTTER_VERSION }}
+      #     channel: "stable"
+
+      # - name: Install Melos
+      #   run: dart pub global activate melos
+
+      # - name: Melos bootstrap
+      #   run: melos bootstrap
+
+      # - name: Build iOS App
+      #   run: melos build_ios
+
+      # - name: Upload iOS Artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ios-build
+      #     path: packages/flutter_application_1/build/ios/archive/*.ipa
+
+  pro-distribute:
+    needs: [pro-build-android, pro-build-ios]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # - name: Download Android Artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: android-build
+      #     path: .
+
+      # - name: Download iOS Artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: ios-build
+      #     path: .
+
+      # - name: Deploy to Google Play Store
+      #   uses: r0adkll/upload-google-play@v1
+      #   with:
+      #     serviceAccountJson: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT_JSON }}
+      #     packageName: your.package.name
+      #     releaseFile: app-release.apk
+
+      # - name: Deploy to Apple App Store
+      #   uses: apple-actions/upload-testflight-build@v1
+      #   with:
+      #     app_id: ${{ secrets.IOS_APP_STORE_ID }}
+      #     api_key_id: ${{ secrets.IOS_KEY_ID_PROD }}
+      #     api_key_issuer_id: ${{ secrets.IOS_ISSUER_ID_PROD }}
+      #     api_key: ${{ secrets.IOS_PRIVATE_KEY_PROD }}
+      #     upload_to_app_store: true
