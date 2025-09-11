@@ -31,7 +31,9 @@ jobs:
         run: melos run test
 
   sonarqube:
+    needs: [dev-validate]
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory
     steps:
@@ -56,7 +58,7 @@ jobs:
             --define sonar.cfamily.compile-commands="${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
 
   dev-build-android:
-    needs: [dev-validate]
+    needs: [sonarqube]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
     steps:
@@ -91,7 +93,7 @@ jobs:
           path: packages/flutter_application_1/build/app/outputs/flutter-apk/app-release.apk
 
   dev-build-ios:
-    needs: [dev-validate]
+    needs: [sonarqube]
     runs-on: macos-latest
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
     steps:
