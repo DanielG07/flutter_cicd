@@ -62,29 +62,29 @@ jobs:
           name: android-build
           path: packages/flutter_application_1/build/app/outputs/flutter-apk/app-release.apk
 
-  build-ios:
-    needs: [dev]
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
+  # build-ios:
+  #  needs: [dev]
+  #  runs-on: macos-latest
+  #  steps:
+  #    - uses: actions/checkout@v3
 
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ vars.FLUTTER_VERSION }}
-          channel: "stable"
+  #    - name: Install Flutter
+  #      uses: subosito/flutter-action@v2
+  #      with:
+  #        flutter-version: ${{ vars.FLUTTER_VERSION }}
+  #        channel: "stable"
 
-      - name: Install Melos
-        run: dart pub global activate melos
+  #    - name: Install Melos
+  #      run: dart pub global activate melos
 
-      - name: Melos bootstrap
-        run: melos bootstrap
+  #    - name: Melos bootstrap
+  #      run: melos bootstrap
 
-      - name: Build iOS App
-        run: melos build_ipa
+  #    - name: Build iOS App
+  #      run: melos build_ipa
 
-      - name: Upload iOS Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-build
-          path: packages/flutter_application_1/build/ios/archive/*.ipa
+  #    - name: Upload iOS Artifact
+  #      uses: actions/upload-artifact@v4
+  #      with:
+  #        name: ios-build
+  #        path: packages/flutter_application_1/build/ios/archive/*.ipa
