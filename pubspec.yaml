@@ -16,7 +16,10 @@ melos:
       description: Run 'flutter test' in all packages.
     build_apk:
       run: melos exec --scope="flutter_application_1" -- flutter build apk
-      description: Build the app package.
+      description: Build the APK.
+    build_ipa:
+      run: melos exec --scope="flutter_application_1" -- flutter build ipa
+      description: Build the IPA.
     run_app:
       run: melos exec --scope="flutter_application_1" --flutter -- "flutter run -d Chrome"
       description: Run the specified Flutter application.
