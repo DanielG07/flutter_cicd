@@ -60,7 +60,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-build
-          path: packages/app/build/app/outputs/flutter-apk/app-release.apk
+          path: packages/flutter_application_1/build/app/outputs/flutter-apk/app-release.apk
 
   build-ios:
     needs: [dev]
@@ -87,4 +87,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
-          path: packages/app/build/ios/archive/*.ipa
+          path: packages/flutter_application_1/build/ios/archive/*.ipa
