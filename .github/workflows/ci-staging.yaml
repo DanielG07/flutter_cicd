@@ -19,26 +19,26 @@ jobs:
           name: android-build
           path: .
 
-      - name: Download iOS Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: ios-build
-          path: .
+      # - name: Download iOS Artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: ios-build
+      #     path: .
 
-      - name: Deploy to Firebase App Distribution (Android)
-        uses: rshipp/action-firebase-app-distribution@v1
-        with:
-          firebase_token: ${{ secrets.FIREBASE_TOKEN }}
-          app_id: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
-          group: "qa-team"
-          file: app-release.apk
+      # - name: Deploy to Firebase App Distribution (Android)
+      #   uses: rshipp/action-firebase-app-distribution@v1
+      #   with:
+      #     firebase_token: ${{ secrets.FIREBASE_TOKEN }}
+      #     app_id: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
+      #     group: "qa-team"
+      #     file: app-release.apk
 
-      - name: Deploy to TestFlight (iOS)
-        uses: apple-actions/upload-testflight-build@v1
-        with:
-          app_id: ${{ secrets.IOS_APP_ID }}
-          api_key_id: ${{ secrets.IOS_KEY_ID }}
-          api_key_issuer_id: ${{ secrets.IOS_ISSUER_ID }}
-          api_key: ${{ secrets.IOS_PRIVATE_KEY }}
-          app_store_connect_jwt: ${{ secrets.IOS_API_KEY }}
-          upload_to_app_store: false
+      # - name: Deploy to TestFlight (iOS)
+      #   uses: apple-actions/upload-testflight-build@v1
+      #   with:
+      #     app_id: ${{ secrets.IOS_APP_ID }}
+      #     api_key_id: ${{ secrets.IOS_KEY_ID }}
+      #     api_key_issuer_id: ${{ secrets.IOS_ISSUER_ID }}
+      #     api_key: ${{ secrets.IOS_PRIVATE_KEY }}
+      #     app_store_connect_jwt: ${{ secrets.IOS_API_KEY }}
+      #     upload_to_app_store: false
