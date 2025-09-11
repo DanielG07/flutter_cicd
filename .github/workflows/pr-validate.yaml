@@ -1,0 +1,26 @@
+name: Validate PR Source
+
+on:
+  pull_request:
+    branches:
+      - staging
+      - prod
+
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR source branch
+        run: |
+
+          if [[ "${{ github.event.pull_request.base.ref }}" == "staging" && "${{ github.event.pull_request.head.ref }}" != "dev" ]]; then
+            echo "❌ Solo se permiten PRs desde dev hacia staging"
+            exit 1
+          fi
+
+          if [[ "${{ github.event.pull_request.base.ref }}" == "prod" && "${{ github.event.pull_request.head.ref }}" != "staging" ]]; then
+            echo "❌ Solo se permiten PRs desde staging hacia prod"
+            exit 1
+          fi
+
+          echo "✅ Validación pasada"
