@@ -1,7 +1,6 @@
 name: CI Staging
 
 on:
-  on:
   workflow_run:
     workflows: ["CI Dev"]
     types:
