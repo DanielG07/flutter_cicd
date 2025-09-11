@@ -30,6 +30,13 @@ jobs:
       - name: Melos test
         run: melos run test
 
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          projectBaseDir: /package/flutter_application_1/
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   dev-build-android:
     needs: [dev-validate]
     runs-on: ubuntu-latest
