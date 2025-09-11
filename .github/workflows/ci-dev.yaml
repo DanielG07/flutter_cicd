@@ -33,7 +33,7 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         with:
-          projectBaseDir: /package/flutter_application_1/
+          projectBaseDir: packages/flutter_application_1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
