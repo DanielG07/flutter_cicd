@@ -1,0 +1,74 @@
+name: Staging Pull Request
+
+on:
+  pull_request:
+    types: [opened, reopened]
+    branches:
+      - staging
+
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    environment: Staging
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+
+      - name: Setup Melos
+        run: dart pub global activate melos
+
+      - name: Bootstrap Melos
+        run: melos bootstrap
+
+  manual-approval:
+    needs: [staging]
+    name: Manual Approval
+    runs-on: ubuntu-latest
+    environment: Staging
+
+    permissions:
+      issues: write
+
+    steps:
+      - name: Await Manual Approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: DanielG07
+          minimum-approvals: 1
+          issue-title: "Manual Approval Required for Merge"
+          issue-body: "Please approve or deny the deployment."
+
+      # - name: Download Android Artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: android-build
+      #     path: .
+
+      # - name: Download iOS Artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: ios-build
+      #     path: .
+
+      # Este es el paso clave: usar las variables de entorno para el build
+      # - name: Deploy to Firebase App Distribution (Android)
+      #   uses: rshipp/action-firebase-app-distribution@v1
+      #   with:
+      #     # Usa los secretos definidos en el entorno de Staging
+      #     firebase_token: ${{ secrets.FIREBASE_TOKEN }}
+      #     app_id: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
+      #     group: "qa-team" # Grupo para el despliegue de Staging
+      #     file: app-release.apk
+
+      # - name: Deploy to TestFlight (iOS)
+      #   uses: apple-actions/upload-testflight-build@v1
+      #   with:
+      #     app_id: ${{ secrets.IOS_APP_ID }}
+      #     # Certificados y secretos para la firma de iOS
+      #     api_key_id: ${{ secrets.IOS_KEY_ID }}
+      #     api_key_issuer_id: ${{ secrets.IOS_ISSUER_ID }}
+      #     api_key: ${{ secrets.IOS_PRIVATE_KEY }}
+      #     app_store_connect_jwt: ${{ secrets.IOS_API_KEY }}
