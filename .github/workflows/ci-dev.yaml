@@ -30,8 +30,23 @@ jobs:
       - name: Melos test
         run: melos run test
 
-  dev-build-android:
+  sonarqube:
     needs: [dev-validate]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5.3.1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  dev-build-android:
+    needs: [sonarqube]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
     steps:
@@ -66,7 +81,7 @@ jobs:
           path: packages/flutter_application_1/build/app/outputs/flutter-apk/app-release.apk
 
   dev-build-ios:
-    needs: [dev-validate]
+    needs: [sonarqube]
     runs-on: macos-latest
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
     steps:
