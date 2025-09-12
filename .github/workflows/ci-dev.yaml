@@ -44,8 +44,6 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v5.3.1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_SCANNER_OPTS: >
-            -Dsonar.projectBaseDir=packages/flutter_application_1
 
   dev-build-android:
     needs: [sonarqube]
