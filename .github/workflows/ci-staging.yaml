@@ -87,7 +87,7 @@ jobs:
           path: .
 
       - name: Deploy to Firebase App Distribution (Android)
-        uses: rshipp/action-firebase-app-distribution@v1
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           app_id: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
