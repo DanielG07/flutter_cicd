@@ -6,7 +6,95 @@ on:
       - staging
 
 jobs:
-  staging-distribute:
+  build-android:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: ${{ vars.JAVA_VERSION }}
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ vars.FLUTTER_VERSION }}
+          channel: "stable"
+
+      - name: Install Melos
+        run: dart pub global activate melos
+
+      - name: Melos bootstrap
+        run: melos bootstrap
+
+      - name: Build Android App
+        run: melos build_apk
+
+      - name: Upload Android Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build
+          path: packages/flutter_application_1/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 1
+
+  build-ios:
+    runs-on: macos-latest
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # - name: Set up Java
+      #   uses: actions/setup-java@v3
+      #   with:
+      #     distribution: "zulu"
+      #     java-version: ${{ vars.JAVA_VERSION }}
+
+      # - name: Install Flutter
+      #   uses: subosito/flutter-action@v2
+      #   with:
+      #     flutter-version: ${{ vars.FLUTTER_VERSION }}
+      #     channel: "stable"
+
+      # - name: Install Melos
+      #   run: dart pub global activate melos
+
+      # - name: Melos bootstrap
+      #   run: melos bootstrap
+
+      # - name: Build iOS App
+      #   run: melos build_ios
+
+      # - name: Upload iOS Artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ios-build
+      #     path: packages/flutter_application_1/build/ios/archive/*.ipa
+
+  distribute-android:
+    needs: [build-android]
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Android Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-build
+          path: .
+
+      - name: Deploy to Firebase App Distribution (Android)
+        uses: rshipp/action-firebase-app-distribution@v1
+        with:
+          app_id: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
+          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+          file: app-release.apk
+
+  distribute-ios:
+    needs: [build-ios]
     if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
@@ -22,14 +110,6 @@ jobs:
       #     name: ios-build
       #     path: .
 
-      # - name: Deploy to Firebase App Distribution (Android)
-      #   uses: rshipp/action-firebase-app-distribution@v1
-      #   with:
-      #     firebase_token: ${{ secrets.FIREBASE_TOKEN }}
-      #     app_id: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
-      #     group: "qa-team"
-      #     file: app-release.apk
-
       # - name: Deploy to TestFlight (iOS)
       #   uses: apple-actions/upload-testflight-build@v1
       #   with:
@@ -39,3 +119,11 @@ jobs:
       #     api_key: ${{ secrets.IOS_PRIVATE_KEY }}
       #     app_store_connect_jwt: ${{ secrets.IOS_API_KEY }}
       #     upload_to_app_store: false
+
+  qa-automation:
+    needs: [build-android, build-ios]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
