@@ -15,30 +15,17 @@ jobs:
       - name: Install jq
         uses: dcarbone/install-jq-action@v3.2.0
 
-      - name: Get bump type from PR labels
+      - uses: snnaplab/get-labels-action@v1
         id: bump_type
-        run: |
-          BUMP_TYPE="patch" # default
-          echo ${{ github.event.pull_request.labels.* }}
-          labels=${{ ithub.event.pull_request.labels.*.name }}
-          echo $labels
-          
-          # La siguiente línea es la clave, usando jq para procesar el JSON 1
-          for label in $(echo "$labels" | jq -r '.[]'); do
-            if [[ "$label" == *"major"* ]]; then
-              BUMP_TYPE="major"
-              break
-            elif [[ "$label" == *"minor"* ]]; then
-              BUMP_TYPE="minor"
-              break
-            elif [[ "$label" == *"patch"* ]]; then
-              BUMP_TYPE="patch"
-              break
-            fi
-          done
-          
-          echo "Determined bump type: $BUMP_TYPE"
-          echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+      - if: contains(fromJSON(env.LABELS), 'major')
+      - run: |
+          echo "bump_type=major" >> $GITHUB_OUTPUT
+      - if: contains(fromJSON(env.LABELS), 'minor')
+      - run: |
+          echo "bump_type=minor" >> $GITHUB_OUTPUT
+      - if: contains(fromJSON(env.LABELS), 'patch')
+      - run: |
+          echo "bump_type patch" >> $GITHUB_OUTPUT
 
       - name: Decide bump type and update version
         id: bump
