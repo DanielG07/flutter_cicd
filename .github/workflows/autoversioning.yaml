@@ -1,0 +1,45 @@
+name: Autoversioning
+
+on:
+  pull_request:
+    branches: ["dev"]
+    types: [closed]
+
+jobs:
+  bump-staging:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+
+      - name: Get bump type from PR labels
+        id: bump_type
+        run: |
+          BUMP_TYPE="patch" # default
+          for label in ${{ toJson(github.event.pull_request.labels) }}; do
+            if [[ "$label" == *"major"* ]]; then
+              BUMP_TYPE="major"
+            elif [[ "$label" == *"minor"* ]]; then
+              BUMP_TYPE="minor"
+            elif [[ "$label" == *"patch"* ]]; then
+              BUMP_TYPE="patch"
+            fi
+          done
+          echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+
+      - name: Decide bump type and update version
+        id: bump
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | cut -d ' ' -f2 | cut -d+ -f1)
+          NEW_VERSION=$(npx semver "$VERSION" -i ${{ steps.bump_type.outputs.bump_type }})
+          sed -i "s/^version:.*/version: ${NEW_VERSION}+${GITHUB_RUN_NUMBER}/" pubspec.yaml
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit & Tag new version
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git commit -am "chore: bump version to ${{ steps.bump.outputs.new_version }}"
+          git tag v${{ steps.bump.outputs.new_version }}
+          git push --follow-tags
