@@ -19,6 +19,7 @@ jobs:
         id: bump_type
         run: |
           BUMP_TYPE="patch" # default
+          echo ${{ github.event.pull_request.labels }}
           labels=${{ toJson(github.event.pull_request.labels.*.name) }}
           
           # La siguiente línea es la clave, usando jq para procesar el JSON 1
