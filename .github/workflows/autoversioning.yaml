@@ -20,7 +20,7 @@ jobs:
         run: |
           BUMP_TYPE="patch" # default
           labels=${{ toJson(github.event.pull_request.labels.*.name) }}
-          echo ${labels}
+          echo $labels
           for label in ${labels}; do
             if [[ "$label" == *"major"* ]]; then
               BUMP_TYPE="major"
