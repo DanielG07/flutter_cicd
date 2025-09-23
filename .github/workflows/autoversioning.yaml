@@ -20,7 +20,7 @@ jobs:
         run: |
           BUMP_TYPE="patch" # default
           echo ${{ github.event.pull_request.labels.* }}
-          labels=${{ toJson(github.event.pull_request.labels.*.name) }}
+          labels=${{ ithub.event.pull_request.labels.*.name }}
           echo $labels
           
           # La siguiente línea es la clave, usando jq para procesar el JSON 1
