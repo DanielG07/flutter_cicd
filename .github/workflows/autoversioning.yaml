@@ -20,7 +20,6 @@ jobs:
         run: |
           BUMP_TYPE="patch" # default
           labels=${{ toJson(github.event.pull_request.labels.*.name) }}
-          echo "Processing labels: $labels" # Usamos comillas dobles para evitar el error
           
           # La siguiente línea es la clave, usando jq para procesar el JSON
           for label in $(echo "$labels" | jq -r '.[]'); do
