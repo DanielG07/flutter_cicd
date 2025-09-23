@@ -30,6 +30,7 @@ jobs:
               BUMP_TYPE="patch"
             fi
           done
+          echo $BUMP_TYPE
           echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
 
       - name: Decide bump type and update version
