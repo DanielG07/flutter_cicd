@@ -20,17 +20,23 @@ jobs:
         run: |
           BUMP_TYPE="patch" # default
           labels=${{ toJson(github.event.pull_request.labels.*.name) }}
-          echo "$labels"
+          echo "Processing labels: $labels" # Usamos comillas dobles para evitar el error
+          
+          # La siguiente línea es la clave, usando jq para procesar el JSON
           for label in $(echo "$labels" | jq -r '.[]'); do
             if [[ "$label" == *"major"* ]]; then
               BUMP_TYPE="major"
+              break
             elif [[ "$label" == *"minor"* ]]; then
               BUMP_TYPE="minor"
+              break
             elif [[ "$label" == *"patch"* ]]; then
               BUMP_TYPE="patch"
+              break
             fi
           done
-          echo $BUMP_TYPE
+          
+          echo "Determined bump type: $BUMP_TYPE"
           echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
 
       - name: Decide bump type and update version
