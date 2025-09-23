@@ -51,4 +51,4 @@ jobs:
         with:
           commit_message: Auto version
           branch: dev
-          tagging_message: '${{ steps.bump.outputs.new_version }}
+          tagging_message: '${{ steps.bump.outputs.new_version }}'
