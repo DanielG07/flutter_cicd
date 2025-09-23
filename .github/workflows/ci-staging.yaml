@@ -1,0 +1,123 @@
+name: CI Staging
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: ${{ vars.JAVA_VERSION }}
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ vars.FLUTTER_VERSION }}
+          channel: "stable"
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Build Android App
+        run: flutter build apk
+
+      - name: Upload Android Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 1
+
+  build-ios:
+    runs-on: macos-latest
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # - name: Set up Java
+      #   uses: actions/setup-java@v3
+      #   with:
+      #     distribution: "zulu"
+      #     java-version: ${{ vars.JAVA_VERSION }}
+
+      # - name: Install Flutter
+      #   uses: subosito/flutter-action@v2
+      #   with:
+      #     flutter-version: ${{ vars.FLUTTER_VERSION }}
+      #     channel: "stable"
+
+      # - name: Flutter pub get
+      #   run: flutter pub get
+
+      # - name: Build iOS App
+      #   run: flutter build ipa
+
+      # - name: Upload iOS Artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ios-build
+      #     path: build/ios/archive/*.ipa
+
+  distribute-android:
+    needs: [build-android]
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Android Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-build
+          path: .
+
+      - name: Deploy to Firebase App Distribution (Android)
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
+          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+          file: app-release.apk
+
+  distribute-ios:
+    needs: [build-ios]
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Android Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-build
+          path: .
+
+      # - name: Download iOS Artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: ios-build
+      #     path: .
+
+      # - name: Deploy to TestFlight (iOS)
+      #   uses: apple-actions/upload-testflight-build@v1
+      #   with:
+      #     app_id: ${{ secrets.IOS_APP_ID }}
+      #     api_key_id: ${{ secrets.IOS_KEY_ID }}
+      #     api_key_issuer_id: ${{ secrets.IOS_ISSUER_ID }}
+      #     api_key: ${{ secrets.IOS_PRIVATE_KEY }}
+      #     app_store_connect_jwt: ${{ secrets.IOS_API_KEY }}
+      #     upload_to_app_store: false
+
+  qa-automation:
+    needs: [build-android, build-ios]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
