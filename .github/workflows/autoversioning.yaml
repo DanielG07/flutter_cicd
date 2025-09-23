@@ -21,7 +21,7 @@ jobs:
           BUMP_TYPE="patch" # default
           echo ${{ github.event.pull_request.labels.* }}
           labels=${{ toJson(github.event.pull_request.labels.*.name) }}
-          cat $labels
+          echo $labels
           
           # La siguiente línea es la clave, usando jq para procesar el JSON 1
           for label in $(echo "$labels" | jq -r '.[]'); do
