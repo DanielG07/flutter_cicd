@@ -92,17 +92,11 @@ jobs:
     if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - name: Download Android Artifact
+      - name: Download iOS Artifact
         uses: actions/download-artifact@v4
         with:
-          name: android-build
+          name: ios-build
           path: .
-
-      # - name: Download iOS Artifact
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: ios-build
-      #     path: .
 
       # - name: Deploy to TestFlight (iOS)
       #   uses: apple-actions/upload-testflight-build@v1
