@@ -19,8 +19,9 @@ jobs:
         id: bump_type
         run: |
           BUMP_TYPE="patch" # default
-          
-          for label in ${{ github.event.pull_request.labels[@] }}; do
+          labels=${{ toJson(github.event.pull_request.labels.*.name) }}
+          echo $labels
+          for label in $labels; do
             if [[ "$label" == *"major"* ]]; then
               BUMP_TYPE="major"
             elif [[ "$label" == *"minor"* ]]; then
