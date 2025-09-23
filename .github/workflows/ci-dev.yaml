@@ -18,17 +18,14 @@ jobs:
           flutter-version: ${{ vars.FLUTTER_VERSION }}
           channel: "stable"
 
-      - name: Install Melos
-        run: dart pub global activate melos
+      - name: Flutter pub get
+        run: flutter pub get
 
-      - name: Melos bootstrap
-        run: melos bootstrap
+      - name: Flutter analyze
+        run: flutter analyze
 
-      - name: Melos analyze
-        run: melos run analyze
-
-      - name: Melos test
-        run: melos run test
+      - name: Flutter test
+        run: flutter test
 
   sonarqube:
     needs: [dev-validate]
