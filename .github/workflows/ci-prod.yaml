@@ -3,12 +3,12 @@ name: CI Prod
 on:
   push:
     branches:
-      - prod
+      - main
 
 jobs:
   pro-validate:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v3
 
@@ -18,22 +18,19 @@ jobs:
           flutter-version: ${{ vars.FLUTTER_VERSION }}
           channel: "stable"
 
-      - name: Install Melos
-        run: dart pub global activate melos
+      - name: Flutter pub get
+        run: flutter pub get
 
-      - name: Melos bootstrap
-        run: melos bootstrap
+      - name: Flutter analyze
+        run: flutter run analyze
 
-      - name: Melos analyze
-        run: melos run analyze
-
-      - name: Melos test
-        run: melos run test
+      - name: Flutter test
+        run: flutter run test
 
   pro-build-android:
     needs: [pro-validate]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -50,25 +47,22 @@ jobs:
           flutter-version: ${{ vars.FLUTTER_VERSION }}
           channel: "stable"
 
-      - name: Install Melos
-        run: dart pub global activate melos
-
-      - name: Melos bootstrap
-        run: melos bootstrap
+      - name: Flutter pub get
+        run: flutter pub get
 
       - name: Build Android App
-        run: melos build_apk
+        run: flutter build aab
 
       - name: Upload Android Artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-build
-          path: packages/flutter_application_1/build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/app-release.aab
 
   pro-build-ios:
     needs: [pro-validate]
     runs-on: macos-latest
-    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -85,25 +79,22 @@ jobs:
       #     flutter-version: ${{ vars.FLUTTER_VERSION }}
       #     channel: "stable"
 
-      # - name: Install Melos
-      #   run: dart pub global activate melos
-
-      # - name: Melos bootstrap
-      #   run: melos bootstrap
+      # - name: Flutter pub get
+      #   run: flutter pub get
 
       # - name: Build iOS App
-      #   run: melos build_ios
+      #   run: flutter build ipa
 
       # - name: Upload iOS Artifact
       #   uses: actions/upload-artifact@v4
       #   with:
       #     name: ios-build
-      #     path: packages/flutter_application_1/build/ios/archive/*.ipa
+      #     path: build/ios/archive/*.ipa
 
   pro-distribute:
     needs: [pro-build-android, pro-build-ios]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
       - name: Checkout
@@ -126,7 +117,7 @@ jobs:
       #   with:
       #     serviceAccountJson: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT_JSON }}
       #     packageName: your.package.name
-      #     releaseFile: app-release.apk
+      #     releaseFile: app-release.aab
 
       # - name: Deploy to Apple App Store
       #   uses: apple-actions/upload-testflight-build@v1

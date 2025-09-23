@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - staging
-      - prod
+      - main
     types:
       - opened
       - synchronize
@@ -30,8 +30,8 @@ jobs:
             exit 1
           fi
 
-          if [[ "${{ github.event.pull_request.base.ref }}" == "prod" && "${{ github.event.pull_request.head.ref }}" != "staging" ]]; then
-            echo "❌ Solo se permiten PRs desde staging hacia prod"
+          if [[ "${{ github.event.pull_request.base.ref }}" == "main" && "${{ github.event.pull_request.head.ref }}" != "staging" ]]; then
+            echo "❌ Solo se permiten PRs desde staging hacia main"
             curl -s -X PATCH \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
