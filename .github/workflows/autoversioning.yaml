@@ -11,13 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+
+      - name: Install jq
+        run: |
+          apt-get install jq
 
       - name: Get bump type from PR labels
         id: bump_type
         run: |
           BUMP_TYPE="patch" # default
-          for label in ${{ toJson(github.event.pull_request.labels) }}; do
+          labels=$(echo ${{ github.event.pull_request.labels }} | jq -r '.user.name')
+          for label in ${labels[@]}; do
             if [[ "$label" == *"major"* ]]; then
               BUMP_TYPE="major"
             elif [[ "$label" == *"minor"* ]]; then
