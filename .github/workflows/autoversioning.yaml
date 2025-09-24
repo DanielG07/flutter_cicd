@@ -8,31 +8,38 @@ on:
 jobs:
   bump-staging:
     if: github.event.pull_request.merged == true
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Install jq
         uses: dcarbone/install-jq-action@v3.2.0
 
-      - uses: snnaplab/get-labels-action@v1
+      - name: Check autoversioning
+        uses: snnaplab/get-labels-action@v1
         id: bump_type
       - run: |
+          AUTOVERSIONING="false"
           for i in $(seq 0 $(($(echo '${{ env.LABELS }}' | jq length) - 1)))
           do
             label=$(echo '${{ env.LABELS }}' | jq -r .[$i])
             if [[ "$label" == *"major"* ]]; then
               BUMP_TYPE="major"
+              AUTOVERSIONING="true"
             elif [[ "$label" == *"minor"* ]]; then
               BUMP_TYPE="minor"
+              AUTOVERSIONING="true"
             elif [[ "$label" == *"patch"* ]]; then
               BUMP_TYPE="patch"
+              AUTOVERSIONING="true"
             fi
           done
-          echo $BUMP_TYPE
           echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
-          echo "bump_type=major" >> $GITHUB_OUTPUT
+          echo "autoversioning=$AUTOVERSIONING" >> $GITHUB_OUTPUT
 
-      - name: Decide bump type and update version
+      - name: Update version
+        if: steps.bump_type.outputs.autoversioning == 'true'
         id: bump
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | cut -d ' ' -f2 | cut -d+ -f1)
@@ -41,6 +48,7 @@ jobs:
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
       - name: Commit & Tag new version
+        if: steps.bump_type.outputs.autoversioning == 'true'
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: Auto version
