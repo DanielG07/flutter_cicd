@@ -4,7 +4,6 @@ on:
   workflow_run:
     workflows: [Autoversioning]
     types: [completed]
-    branches: [dev]
 
 jobs:
   dev-validate:
