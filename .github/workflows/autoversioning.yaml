@@ -1,0 +1,60 @@
+name: Autoversioning
+
+on:
+  pull_request:
+    branches: ["dev"]
+    types: [closed]
+
+jobs:
+  bump-staging:
+    if: github.event.pull_request.merged == true
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        uses: dcarbone/install-jq-action@v3.2.0
+
+      - name: Get labels
+        uses: snnaplab/get-labels-action@v1
+
+      - name: Check autoversioning
+        id: bump_type
+        run: |
+          AUTOVERSIONING="false"
+          for i in $(seq 0 $(($(echo '${{ env.LABELS }}' | jq length) - 1)))
+          do
+            label=$(echo '${{ env.LABELS }}' | jq -r .[$i])
+            if [[ "$label" == *"major"* ]]; then
+              BUMP_TYPE="major"
+              AUTOVERSIONING="true"
+            elif [[ "$label" == *"minor"* ]]; then
+              BUMP_TYPE="minor"
+              AUTOVERSIONING="true"
+            elif [[ "$label" == *"patch"* ]]; then
+              BUMP_TYPE="patch"
+              AUTOVERSIONING="true"
+            fi
+          done
+          echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+          echo "autoversioning=$AUTOVERSIONING" >> $GITHUB_OUTPUT
+
+      - name: Update version
+        if: steps.bump_type.outputs.autoversioning == 'true'
+        id: bump
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | cut -d ' ' -f2 | cut -d+ -f1)
+          NEW_VERSION=$(npx semver "$VERSION" -i ${{ steps.bump_type.outputs.bump_type }})
+          sed -i "s/^version:.*/version: ${NEW_VERSION}+${GITHUB_RUN_NUMBER}/" pubspec.yaml
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit & Tag new version
+        if: steps.bump_type.outputs.autoversioning == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: Auto version
+          branch: dev
+          tagging_message: "${{ steps.bump.outputs.new_version }}"
