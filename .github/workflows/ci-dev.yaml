@@ -3,8 +3,8 @@ name: CI Dev
 on:
   workflow_run:
     workflows: [Autoversioning]
-    types:
-      - completed
+    types: [completed]
+    branches: [dev]
 
 jobs:
   dev-validate:
