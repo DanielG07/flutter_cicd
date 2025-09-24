@@ -1,9 +1,10 @@
 name: CI Dev
 
 on:
-  push:
-    branches:
-      - dev
+  workflow_run:
+    workflows: [Autoversioning]
+    types:
+      - completed
 
 jobs:
   dev-validate:
