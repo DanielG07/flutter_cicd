@@ -9,7 +9,6 @@ on:
 jobs:
   dev-validate:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_run'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -32,7 +31,6 @@ jobs:
   sonarqube:
     needs: [dev-validate]
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_run'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
