@@ -11,21 +11,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+      - uses:
       - name: Install jq
         uses: dcarbone/install-jq-action@v3.2.0
 
       - uses: snnaplab/get-labels-action@v1
         id: bump_type
-      - if: contains(fromJSON(env.LABELS), 'major')
       - run: |
+          for i in $(seq 0 $(($(echo '${{ env.LABELS }}' | jq length) - 1)))
+          do
+            label=$(echo '${{ env.LABELS }}' | jq -r .[$i])
+            if [[ "$label" == *"major"* ]]; then
+              BUMP_TYPE="major"
+            elif [[ "$label" == *"minor"* ]]; then
+              BUMP_TYPE="minor"
+            elif [[ "$label" == *"patch"* ]]; then
+              BUMP_TYPE="patch"
+            fi
+          done
+          echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
           echo "bump_type=major" >> $GITHUB_OUTPUT
-      - if: contains(fromJSON(env.LABELS), 'minor')
-      - run: |
-          echo "bump_type=minor" >> $GITHUB_OUTPUT
-      - if: contains(fromJSON(env.LABELS), 'patch')
-      - run: |
-          echo "bump_type patch" >> $GITHUB_OUTPUT
 
       - name: Decide bump type and update version
         id: bump
@@ -40,4 +45,4 @@ jobs:
         with:
           commit_message: Auto version
           branch: dev
-          tagging_message: '${{ steps.bump.outputs.new_version }}'
+          tagging_message: "${{ steps.bump.outputs.new_version }}"
