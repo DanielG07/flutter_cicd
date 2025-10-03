@@ -12,7 +12,7 @@ jobs:
 
       - name: Mask secret explicitly
         run: |
-          echo "VARIABLE VALUE = ${{ vars.ENVRIONMENT }}"
+          echo "VARIABLE VALUE = ${{ vars.ENVIRONMENT }}"
 
   staging:
     runs-on: ubuntu-latest
@@ -22,7 +22,7 @@ jobs:
 
       - name: Mask secret explicitly
         run: |
-          echo "VARIABLE VALUE = ${{ vars.ENVRIONMENT }}"
+          echo "VARIABLE VALUE = ${{ vars.ENVIRONMENT }}"
 
   production:
     runs-on: ubuntu-latest
@@ -32,4 +32,4 @@ jobs:
 
       - name: Mask secret explicitly
         run: |
-          echo "VARIABLE VALUE = ${{ vars.ENVRIONMENT }}"
+          echo "VARIABLE VALUE = ${{ vars.ENVIRONMENT }}"

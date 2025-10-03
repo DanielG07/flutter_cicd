@@ -1,0 +1,70 @@
+name: QA Automation
+
+on: workflow_dispatch
+
+jobs:
+  qa-automation-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ vars.FLUTTER_VERSION }}
+          channel: "stable"
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with: { node-version: "20" }
+
+      - name: Install Appium
+        run: |
+          npm i -g appium@^2.5.0 appium-uiautomator2-driver appium-flutter-driver
+          appium driver install uiautomator2
+          appium driver install flutter
+
+      - name: "Start Appium Server"
+        run: nohup appium > appium.log 2>&1 &
+
+      - name: Run Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          arch: x86_64
+          target: google_apis
+          profile: Pixel 6
+          script: adb devices
+
+      - name: Install Robot Framework
+        run: |
+          pip install robotframework==7.* robotframework-appiumlibrary==2.* appium-python-client==3.*
+
+      - name: Run Smoke (Robot Framework)
+        env:
+          BASE_API_URL: ${{ secrets.BASE_API_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          FIREBASE_EMULATOR: "1"
+        run: |
+          robot -L TRACE -d outputs/smoke -v platform:Android -v env:staging tests/smoke/
+
+      - name: Generate JUnit Report
+        uses: mikepenz/action-junit-report@v4
+        if: always()
+        with:
+          report_paths: "outputs/**/output.xml"
+          check_name: "Robot JUnit Report"
+
+      - name: Upload Robot Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robot-reports
+          path: |
+            outputs/**
+            appium.log
