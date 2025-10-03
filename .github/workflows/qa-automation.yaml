@@ -37,7 +37,7 @@ jobs:
           api-level: 33
           arch: x86_64
           target: google_apis
-          profile: Pixel 6
+          profile: pixel_6
           script: adb devices
 
       - name: Install Robot Framework
