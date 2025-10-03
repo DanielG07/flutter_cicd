@@ -1,0 +1,35 @@
+name: Envrionment 
+
+on:
+  workflow_dispatch:
+
+jobs:
+  development:
+    runs-on: ubuntu-latest
+    environment: development
+
+    steps:
+
+      - name: Mask secret explicitly
+        run: |
+          echo "VARIABLE VALUE = ${{ vars.ENVIRONMENT }}"
+
+  staging:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+
+      - name: Mask secret explicitly
+        run: |
+          echo "VARIABLE VALUE = ${{ vars.ENVIRONMENT }}"
+
+  production:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+
+      - name: Mask secret explicitly
+        run: |
+          echo "VARIABLE VALUE = ${{ vars.ENVIRONMENT }}"

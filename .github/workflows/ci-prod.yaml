@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - main
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
-  pro-validate:
+  validate:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
@@ -28,8 +32,8 @@ jobs:
       - name: Flutter test
         run: flutter test
 
-  pro-build-android:
-    needs: [pro-validate]
+  build-android:
+    needs: [validate]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
@@ -60,8 +64,8 @@ jobs:
           name: android-build
           path: build/app/outputs/bundle/release/app-release.aab
 
-  pro-build-ios:
-    needs: [pro-validate]
+  build-ios:
+    needs: [validate]
     runs-on: macos-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
@@ -92,8 +96,8 @@ jobs:
       #     name: ios-build
       #     path: build/ios/archive/*.ipa
 
-  pro-distribute:
-    needs: [pro-build-android, pro-build-ios]
+  distribute:
+    needs: [build-android, build-ios]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
