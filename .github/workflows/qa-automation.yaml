@@ -24,7 +24,7 @@ jobs:
 
       - name: Install Appium
         run: |
-          npm i -g appium@^2.5.0 appium-uiautomator2-driver appium-flutter-driver
+          npm i -g appium@^3.0.2 appium-uiautomator2-driver appium-flutter-driver
           appium driver install uiautomator2
           appium driver install flutter
 
