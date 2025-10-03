@@ -26,7 +26,7 @@ jobs:
         run: |
           npm i -g appium@^3.0.2 appium-uiautomator2-driver appium-flutter-driver
           appium driver install uiautomator2
-          appium driver install appium-flutter-driver
+          appium driver install --source=npm appium-flutter-driver
 
       - name: "Start Appium Server"
         run: nohup appium > appium.log 2>&1 &
