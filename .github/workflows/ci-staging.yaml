@@ -38,97 +38,7 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 1
 
-  qa-automation-android:
-    needs: [build-android]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
-    steps:
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-
-        - name: Download Android Artifact
-          uses: actions/download-artifact@v4
-          with:
-            name: android-build
-            path: .
-
-        - name: Install Flutter
-          uses: subosito/flutter-action@v2
-          with:
-            flutter-version: ${{ vars.FLUTTER_VERSION }}
-            channel: "stable"
-
-        - name: Flutter pub get
-          run: flutter pub get
-
-        - name: Set up Node.js
-          uses: actions/setup-node@v4
-          with: { node-version: "20" }
-
-        - name: Install Appium
-          run: |
-            npm i -g appium@latest appium-uiautomator2-driver@latest appium-flutter-driver@latest
-
-        - name: "Start Appium Server"
-          run: nohup appium > appium.log 2>&1 &
-
-        - name: Python + Robot deps
-          run: |
-            python -m pip install --upgrade pip
-            pip install robotframework robotframework-appiumlibrary Appium-Python-Client
-
-        - name: Run Android Emulator
-          uses: reactivecircus/android-emulator-runner@v2
-          with:
-            api-level: 33
-            arch: x86_64
-            profile: pixel_6
-            script: |
-              adb install -r app-release.apk
-              mkdir -p reports/android
-              robot --xunit reports/android/junit.xml \
-                    --output reports/android/output.xml \
-                    --log reports/android/log.html \
-                    --report reports/android/report.html \
-                    --variablefile conf/android_staging.yaml \
-                    tests
-
-        - name: Generate JUnit Report
-          uses: mikepenz/action-junit-report@v4
-          if: always()
-          with:
-            report_paths: "outputs/**/output.xml"
-            check_name: "Robot JUnit Report"
-
-        - name: Upload Robot Reports
-          uses: actions/upload-artifact@v4
-          if: always()
-          with:
-            name: robot-reports
-            path: |
-              outputs/**
-              appium.log
-
-  distribute-android:
-    needs: [qa-automation-android]
-    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Android Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: android-build
-          path: .
-
-      - name: Deploy to Firebase App Distribution (Android)
-        uses: wzieba/Firebase-Distribution-Github-Action@v1
-        with:
-          appId: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
-          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
-          file: app-release.apk
-
-  build-ios:
+    build-ios:
     runs-on: macos-latest
     if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     steps:
@@ -159,79 +69,167 @@ jobs:
       #     name: ios-build
       #     path: build/ios/archive/*.ipa
 
+  qa-automation-android:
+    needs: [build-android]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Android Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-build
+          path: .
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ vars.FLUTTER_VERSION }}
+          channel: "stable"
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with: { node-version: "20" }
+
+      - name: Install Appium
+        run: |
+          npm i -g appium@latest appium-uiautomator2-driver@latest appium-flutter-driver@latest
+
+      - name: "Start Appium Server"
+        run: nohup appium > appium.log 2>&1 &
+
+      - name: Python + Robot deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install robotframework robotframework-appiumlibrary Appium-Python-Client
+
+      - name: Run Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          arch: x86_64
+          profile: pixel_6
+          script: |
+            adb install -r app-release.apk
+            mkdir -p reports/android
+            robot --xunit reports/android/junit.xml \
+                  --output reports/android/output.xml \
+                  --log reports/android/log.html \
+                  --report reports/android/report.html \
+                  --variablefile conf/android_staging.yaml \
+                  tests
+
+      - name: Generate JUnit Report
+        uses: mikepenz/action-junit-report@v4
+        if: always()
+        with:
+          report_paths: "outputs/**/output.xml"
+          check_name: "Robot JUnit Report"
+
+      - name: Upload Robot Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robot-reports
+          path: |
+            outputs/**
+            appium.log
+
   qa-automation-ios:
     needs: [build-ios]
     runs-on: macos-latest
     if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     steps:
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-        - name: Download iOS Artifact
-          uses: actions/download-artifact@v4
-          with:
-            name: ios-build
-            path: .
+      - name: Download iOS Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-build
+          path: .
 
-        - name: Install Flutter
-          uses: subosito/flutter-action@v2
-          with:
-            flutter-version: ${{ vars.FLUTTER_VERSION }}
-            channel: "stable"
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ vars.FLUTTER_VERSION }}
+          channel: "stable"
 
-        - name: Flutter pub get
-          run: flutter pub get
+      - name: Flutter pub get
+        run: flutter pub get
 
-        - name: Set up Node.js
-          uses: actions/setup-node@v4
-          with: { node-version: "20" }
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with: { node-version: "20" }
 
-        - name: Install Appium
-          run: |
-            npm i -g appium@latest appium-uiautomator2-driver@latest appium-flutter-driver@latest
+      - name: Install Appium
+        run: |
+          npm i -g appium@latest appium-uiautomator2-driver@latest appium-flutter-driver@latest
 
-        - name: "Start Appium Server"
-          run: nohup appium > appium.log 2>&1 &
+      - name: "Start Appium Server"
+        run: nohup appium > appium.log 2>&1 &
 
-        - name: Python + Robot deps
-          run: |
-            python -m pip install --upgrade pip
-            pip install robotframework robotframework-appiumlibrary Appium-Python-Client
+      - name: Python + Robot deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install robotframework robotframework-appiumlibrary Appium-Python-Client
 
-        - name: Run iOS Emulator
-          uses: futureware-tech/simulator-action@v4
-          with:
-            model: "iPhone 16"
-            os: "iOS"
-            os-version: "18.4"
+      - name: Run iOS Emulator
+        uses: futureware-tech/simulator-action@v4
+        with:
+          model: "iPhone 16"
+          os: "iOS"
+          os-version: "18.4"
 
-        - name: Run iOS Tests
-          run: |
-            xcrun simctl install booted ios-build/*.ipa
-            mkdir -p reports/ios
-            robot --xunit reports/ios/junit.xml \
-                  --output reports/ios/output.xml \
-                  --log reports/ios/log.html \
-                  --report reports/ios/report.html \
-                  --variablefile conf/ios_staging.yaml \
-                  tests
+      - name: Run iOS Tests
+        run: |
+          xcrun simctl install booted ios-build/*.ipa
+          mkdir -p reports/ios
+          robot --xunit reports/ios/junit.xml \
+                --output reports/ios/output.xml \
+                --log reports/ios/log.html \
+                --report reports/ios/report.html \
+                --variablefile conf/ios_staging.yaml \
+                tests
 
-        - name: Generate JUnit Report
-          uses: mikepenz/action-junit-report@v4
-          if: always()
-          with:
-            report_paths: "outputs/**/output.xml"
-            check_name: "Robot JUnit Report"
+      - name: Generate JUnit Report
+        uses: mikepenz/action-junit-report@v4
+        if: always()
+        with:
+          report_paths: "outputs/**/output.xml"
+          check_name: "Robot JUnit Report"
 
-        - name: Upload Robot Reports
-          uses: actions/upload-artifact@v4
-          if: always()
-          with:
-            name: robot-reports
-            path: |
-              outputs/**
-              appium.log
+      - name: Upload Robot Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robot-reports
+          path: |
+            outputs/**
+            appium.log
+
+  distribute-android:
+    needs: [qa-automation-android]
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Android Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-build
+          path: .
+
+      - name: Deploy to Firebase App Distribution (Android)
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
+          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+          file: app-release.apk
 
   distribute-ios:
     needs: [qa-automation-ios]
