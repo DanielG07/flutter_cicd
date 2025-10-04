@@ -38,7 +38,7 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 1
 
-    build-ios:
+  build-ios:
     runs-on: macos-latest
     if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     steps:
