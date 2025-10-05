@@ -114,21 +114,15 @@ jobs:
           api-level: 33
           arch: x86_64
           profile: pixel_6
-
-      - name: Install APK
-        run: adb install -r app-release.apk
-
-      - name: Make Directory for Reports
-        run: mkdir -p reports/android
-
-      - name: Run Android Tests
-        run: |
-          robot --xunit reports/android/junit.xml \
-                --output reports/android/output.xml \
-                --log reports/android/log.html \
-                --report reports/android/report.html \
-                --variablefile conf/android_staging.yaml \
-                tests
+          script: |
+            adb install -r app-release.apk
+            mkdir -p reports/android
+            robot --xunit reports/android/junit.xml \
+                  --output reports/android/output.xml \
+                  --log reports/android/log.html \
+                  --report reports/android/report.html \
+                  --variablefile conf/android_staging.yaml \
+                  tests
 
       - name: Generate JUnit Report
         uses: mikepenz/action-junit-report@v4
