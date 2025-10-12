@@ -30,7 +30,7 @@ jobs:
         run: supabase test db
 
       - name: Run Functions Tests
-        run: deno test --allow-all deno-test.ts
+        run: deno test --allow-all ./supabase/tests/functions
 
   deploy:
     needs: [tests]
