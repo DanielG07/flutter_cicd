@@ -38,6 +38,7 @@ jobs:
     if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/staging')
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       PROJECT_ID: ${{ vars.PROJECT_ID }}
     steps:
       - name: Checkout
@@ -48,5 +49,11 @@ jobs:
         with:
           version: latest
 
+      - name: Link to Supabase
+        run: supabase link --project-ref $PROJECT_ID
+
       - name: Deploy to Supabase
-        run: supabase deploy --project-ref $PROJECT_ID --no-verify-jwt
+        run: supabase db push
+
+      - name: Deploy to Supabase
+        run: supabase functions deploy --no-verify-jwt
