@@ -2,6 +2,11 @@ name: Supabase test
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+      - dev
+      - staging
 
 jobs:
   tests:
@@ -32,10 +37,48 @@ jobs:
       - name: Run Functions Tests
         run: deno test --allow-all ./supabase/functions/tests/
 
-  deploy:
+  validate-db:
     needs: [tests]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/staging')
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      PROJECT_ID: ${{ vars.PROJECT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link to Supabase
+        run: supabase link --project-ref $PROJECT_ID
+
+      - name: Diff local vs remote schema
+        id: diff
+        run: |
+          supabase db diff --linked > diff.sql || true
+          if [ -s diff.sql ]; then
+            echo "Differences found between local and remote DB!"
+            cat diff.sql
+            echo "has_diff=true" >> $GITHUB_OUTPUT
+          else
+            echo "No differences found."
+            echo "has_diff=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Fail if DBs differ (for staging/prod)
+        if: steps.diff.outputs.has_diff == 'true' && (github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main')
+        run: |
+          echo "❌ Database mismatch detected. Please review migrations before pushing."
+          exit 1
+
+  deploy:
+    needs: [validate-db]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging'
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
