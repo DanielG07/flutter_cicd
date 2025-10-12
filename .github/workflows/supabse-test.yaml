@@ -1,0 +1,52 @@
+name: Supabase test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_ID: ${{ vars.PROJECT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: latest
+
+      - name: Start Supabase
+        run: supabase start
+
+      - name: Run Database Tests
+        run: supabase test db
+
+      - name: Run Functions Tests
+        run: deno test --allow-all ./supabase/tests/functions
+
+  deploy:
+    needs: [tests]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/staging')
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_ID: ${{ vars.PROJECT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy to Supabase
+        run: supabase deploy --project-ref $PROJECT_ID --no-verify-jwt
