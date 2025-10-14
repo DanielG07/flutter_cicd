@@ -8,6 +8,9 @@ on:
       - dev
       - staging
 
+env:
+  SUPABASE_VERSION: ${{ vars.WF_SUPABASE_VERSION }}
+
 jobs:
   tests:
     runs-on: ubuntu-latest
@@ -23,7 +26,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: ${{ vars.SUPABASE_VERSION }}
+          version: $SUPABASE_VERSION
 
       - name: Setup Deno
         uses: denoland/setup-deno@v2
@@ -45,9 +48,9 @@ jobs:
     environment:
       name: ${{ github.ref_name }}
     if: |
-      github.ref == 'refs/heads/dev' ||
-      github.ref == 'refs/heads/staging' ||
-      github.ref == 'refs/heads/main'
+      github.ref_name == 'dev' ||
+      github.ref_name == 'staging' ||
+      github.ref_name == 'main'
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
@@ -59,7 +62,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: ${{ vars.SUPABASE_VERSION }}
+          version: $SUPABASE_VERSION
 
       - name: Link to Supabase
         run: supabase link --project-ref $PROJECT_ID
@@ -75,6 +78,7 @@ jobs:
             echo "No differences found."
             echo "has_diff=false" >> $GITHUB_OUTPUT
           fi
+
       - name: Upload diff artifact
         if: steps.diff.outputs.has_diff == 'true'
         uses: actions/upload-artifact@v3
@@ -106,7 +110,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: ${{ vars.SUPABASE_VERSION }}
+          version: $SUPABASE_VERSION
 
       - name: Link to Supabase
         run: supabase link --project-ref $PROJECT_ID
@@ -129,10 +133,10 @@ jobs:
     environment:
       name: ${{ github.ref_name }}
     if: |
-      github.ref == 'refs/heads/dev' || 
-      github.ref == 'refs/heads/staging' || 
+      github.ref_name == 'dev' || 
+      github.ref_name == 'staging' || 
       (
-        github.ref == 'refs/heads/main' && github.event_name != 'workflow_dispatch'
+        github.ref_name == 'main' && github.event_name != 'workflow_dispatch'
       )
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
@@ -145,7 +149,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: ${{ vars.SUPABASE_VERSION }}
+          version: $SUPABASE_VERSION
 
       - name: Link to Supabase
         run: supabase link --project-ref $PROJECT_ID
