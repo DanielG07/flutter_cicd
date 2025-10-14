@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  WORKFLOW_ENV: ${{ vars.ENVIRONMENT }}
+  WORKFLOW_ENV: ${{ vars.WF_ENVIRONMENT }}
 
 jobs:
   workflow:
