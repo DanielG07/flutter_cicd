@@ -26,7 +26,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: $SUPABASE_VERSION
+          version: ${{ envs.SUPABASE_VERSION }}
 
       - name: Setup Deno
         uses: denoland/setup-deno@v2
@@ -62,7 +62,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: $SUPABASE_VERSION
+          version: ${{ envs.SUPABASE_VERSION }}
 
       - name: Link to Supabase
         run: supabase link --project-ref $PROJECT_ID
@@ -110,7 +110,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: $SUPABASE_VERSION
+          version: ${{ envs.SUPABASE_VERSION }}
 
       - name: Link to Supabase
         run: supabase link --project-ref $PROJECT_ID
@@ -149,7 +149,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: $SUPABASE_VERSION
+          version: ${{ envs.SUPABASE_VERSION }}
 
       - name: Link to Supabase
         run: supabase link --project-ref $PROJECT_ID
