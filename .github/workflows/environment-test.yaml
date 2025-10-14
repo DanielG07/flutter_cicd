@@ -9,29 +9,34 @@ env:
 jobs:
   workflow:
     runs-on: ubuntu-latest
-
+    env:
+      WORKFLOW_ENV_LOCAL: ${{ vars.ENVIRONMENT }}
     steps:
 
       - name: Mask secret explicitly
         run: |
           echo "VARIABLE VALUE = ${{ vars.ENVIRONMENT }}"
           echo "WORKFLOW_ENV VALUE = $WORKFLOW_ENV"
+          echo "WORKFLOW_ENV_LOCAL VALUE = $WORKFLOW_ENV_LOCAL"
 
   development:
     runs-on: ubuntu-latest
     environment: development
-
+    env:
+      WORKFLOW_ENV: ${{ vars.ENVIRONMENT }}
     steps:
 
       - name: Mask secret explicitly
         run: |
           echo "VARIABLE VALUE = ${{ vars.ENVIRONMENT }}"
-          echo "WORKFLOW_ENV VALUE = $WORKFLOW_ENV"
+          echo "WORKFLOW_ENV_GLOBAL VALUE = $WORKFLOW_ENV"
+          echo "WORKFLOW_ENV_LOCAL VALUE = $WORKFLOW_ENV"
 
   staging:
     runs-on: ubuntu-latest
     environment: staging
-
+    env:
+      WORKFLOW_ENV: ${{ vars.ENVIRONMENT }}
     steps:
 
       - name: Mask secret explicitly
@@ -42,7 +47,8 @@ jobs:
   production:
     runs-on: ubuntu-latest
     environment: production
-
+    env:
+      WORKFLOW_ENV: ${{ vars.ENVIRONMENT }}
     steps:
 
       - name: Mask secret explicitly
