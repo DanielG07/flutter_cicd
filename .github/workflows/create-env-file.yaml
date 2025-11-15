@@ -1,0 +1,51 @@
+name: Dynamic Environment File Creation
+
+on:
+  push:
+    branches: [ create-env-file ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      ENVIRONMENT:
+        description: 'Environment (PROD or QA)'
+        required: true
+        type: choice
+        options:
+          - QA
+          - PROD
+        default: 'QA'
+      TARGET_APP:
+        description: 'Target App'
+        required: true
+        type: choice
+        options:
+          - APP1
+          - APP2
+        default: 'APP1'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create file .env
+        run: |
+          # Establecer valores por defecto si es push automático
+          ENV="${{ inputs.ENVIRONMENT || 'QA' }}"
+          APP="${{ inputs.TARGET_APP || 'APP1' }}"
+
+          echo "ENVIRONMENT=$ENV" >> .env
+
+          echo "Created .env file with:"
+          cat .env
+
+      - name: Upload env file
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-file
+          path: .env
+          retention-days: 1
