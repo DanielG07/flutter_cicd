@@ -38,7 +38,7 @@ jobs:
           ENV="${{ inputs.ENVIRONMENT || 'QA' }}"
           APP="${{ inputs.TARGET_APP || 'APP1' }}"
 
-          echo "ENVIRONMENT=$ENV" >> .env
+          echo "$ENV_FILE" >> .env
 
           echo "Created .env file with:"
           cat .env
@@ -47,5 +47,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: env-file
-          path: .env
+          path: ./.env
           retention-days: 1
