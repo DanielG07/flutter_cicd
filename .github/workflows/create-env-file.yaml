@@ -40,7 +40,7 @@ jobs:
 
           echo "$ENV_FILE" >> .env
 
-          echo "Created .env file with:"
+          echo "Created example.env file with:"
           cat .env
         env:
           ENV_FILE: ${{ secrets.ENV_FILE }}
@@ -63,5 +63,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: env-file
-          path: .env
+          path: example.env
           retention-days: 1
