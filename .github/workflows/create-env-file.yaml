@@ -48,7 +48,7 @@ jobs:
       - name: Verify .env file before upload
         run: |
           echo "=== Verification before upload ==="
-          if [ -f ".env" ]; then
+          if [ -f "example.env" ]; then
             echo "✅ File exists: .env"
             echo "Size: $(stat -f%z .env 2>/dev/null || stat -c%s .env) bytes"
             echo "Lines: $(wc -l < .env)"
