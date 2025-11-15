@@ -45,9 +45,23 @@ jobs:
         env:
           ENV_FILE: ${{ secrets.ENV_FILE }}
 
+      - name: Verify .env file before upload
+        run: |
+          echo "=== Verification before upload ==="
+          if [ -f ".env" ]; then
+            echo "✅ File exists: .env"
+            echo "Size: $(stat -f%z .env 2>/dev/null || stat -c%s .env) bytes"
+            echo "Lines: $(wc -l < .env)"
+            echo "Path: $(realpath .env)"
+          else
+            echo "❌ ERROR: .env file not found!"
+            ls -la
+            exit 1
+          fi
+
       - name: Upload env file
         uses: actions/upload-artifact@v4
         with:
           name: env-file
-          path: ./.env
+          path: .env
           retention-days: 1
