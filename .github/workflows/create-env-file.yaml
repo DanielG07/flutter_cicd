@@ -38,10 +38,10 @@ jobs:
           ENV="${{ inputs.ENVIRONMENT || 'QA' }}"
           APP="${{ inputs.TARGET_APP || 'APP1' }}"
 
-          echo "$ENV_FILE" >> .env
+          echo "$ENV_FILE" >> example.env
 
           echo "Created example.env file with:"
-          cat .env
+          cat example.env
         env:
           ENV_FILE: ${{ secrets.ENV_FILE }}
 
