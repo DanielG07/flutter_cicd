@@ -43,8 +43,7 @@ jobs:
           echo "Created .env file with:"
           cat .env
         env:
-          ENV_FILE: |
-            ENV_FILE=${{ secrets.ENV_FILE }}
+          ENV_FILE: ${{ secrets.ENV_FILE }}
 
       - name: Upload env file
         uses: actions/upload-artifact@v4
