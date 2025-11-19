@@ -20,7 +20,7 @@ set -e
   echo "  has-changes: true"
   echo "  changed-apps: $APPS_STRING"
   echo "  apps-matrix: $APPS_JSON"
-fi
+
 
 echo "================================"
 echo "✅ Detection completed"
