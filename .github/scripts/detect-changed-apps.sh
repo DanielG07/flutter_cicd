@@ -13,7 +13,7 @@ set -e
   # Outputs para GitHub Actions
   echo "has-changes=true" >> $GITHUB_OUTPUT
   echo "changed-apps=$APPS_STRING" >> $GITHUB_OUTPUT
-  echo "apps-matrix={include:$APPS_JSON}" >> $GITHUB_OUTPUT
+  echo "apps-matrix=$APPS_JSON" >> $GITHUB_OUTPUT
 
   echo ""
   echo "GitHub Actions outputs:"
