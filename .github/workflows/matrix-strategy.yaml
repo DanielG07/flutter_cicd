@@ -34,6 +34,7 @@ jobs:
   ci-cd:
     name: CI/CD for ${{ matrix.app }}
     needs: [detect-changes]
+    runs-on: ubuntu-latest
     if: needs.detect-changes.outputs.has-changes == 'true' && needs.detect-changes.outputs.apps-matrix != '[]'  # Ejecutar si hay cambios detectados y apps en la matriz
     strategy:
       matrix:
