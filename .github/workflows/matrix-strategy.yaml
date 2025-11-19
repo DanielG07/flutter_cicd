@@ -1,0 +1,43 @@
+name: Matrix Strategy Workflow
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ matrix-strategy ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-changes:
+    name: Detect Changed Applications
+    runs-on: ubuntu-latest
+    outputs:
+      changed-apps: ${{ steps.detect.outputs.apps }}
+      has-changes: ${{ steps.detect.outputs.has-changes }}
+      apps-matrix: ${{ steps.detect.outputs.apps-matrix }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed applications
+        id: detect
+        run: .github/scripts/detect-changed-apps.sh
+        env:
+          BASE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+
+  ci-cd:
+    name: CI/CD for ${{ matrix.app }}
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.has-changes == 'true' && needs.detect-changes.outputs.apps-matrix != '[]'  # Ejecutar si hay cambios detectados y apps en la matriz
+    strategy:
+      matrix:
+        app: ${{ fromJson(needs.detect-changes.outputs.apps-matrix) }}
+      fail-fast: false  # Continuar con otras apps aunque una falle
+    steps:
+    - run: echo "Matrix - Project ${{ matrix.project }}, Config ${{ matrix.config }}"
