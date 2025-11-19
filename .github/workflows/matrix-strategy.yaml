@@ -25,6 +25,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Make script executable
+        run: chmod +x .github/scripts/detect-changed-apps.sh
+
       - name: Detect changed applications
         id: detect
         run: .github/scripts/detect-changed-apps.sh
