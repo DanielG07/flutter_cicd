@@ -3,8 +3,19 @@ publish_to: none
 environment:
   sdk: ^3.9.0
 workspace:
-  - "packages/flutter_application_1"
+  - packages/design_system
+  - packages/design_system/example
+  - packages/design_system/widgetbook
 melos:
+  categories:
+    apps:
+      - apps/**
+    packages:
+      - packages/**
+    widgetbooks:
+      - "**/widgetbook"
+    examples:
+      - "**/example"
   scripts:
     generate:
       run: melos exec -c 1 --depends-on build_runner -- dart run build_runner build
@@ -29,5 +40,12 @@ melos:
     version:
       run: melos version --no-git-tag-version
       description: Version all packages that have been updated since the last release.
+    widgetbook:deploy:
+      description: Ejecutar widgetbook del design system
+      run: |
+            cd packages/design_system/widgetbook
+            flutter pub get
+            flutter pub run build_runner build
+            flutter build web --release
 dev_dependencies:
   melos: ^7.1.0

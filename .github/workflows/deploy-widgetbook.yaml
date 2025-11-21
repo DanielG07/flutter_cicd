@@ -1,0 +1,53 @@
+name: CI Dev
+
+on:
+  push:
+    branches:
+      - deploy-widgetbook-github
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  build-widgetbook:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ vars.FLUTTER_VERSION }}
+          channel: "stable"
+
+      - name: Install Melos
+        run: dart pub global activate melos
+
+      - name: Melos bootstrap
+        run: melos bootstrap
+
+      - name: Melos analyze
+        run: melos run widgetbook:deploy
+
+      - name: Upload Widgetbook
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: packages/design_system/widgetbook/build/web/
+
+  deploy-widgetbook:
+    needs: [build-widgetbook]
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      

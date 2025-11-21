@@ -1,0 +1,14 @@
+# ==============================================================================
+# GITIGNORE ESPECÍFICO - design_system (package)
+# La mayoría de reglas están en el .gitignore raíz del monorepo
+# Este package no necesita reglas adicionales específicas
+# ==============================================================================
+
+# Nota: El .gitignore raíz ya cubre:
+# - Build artifacts
+# - Flutter/Dart files
+# - pubspec.lock (para packages)
+# - IDE configs
+# - Etc.
+
+# Si necesitas añadir algo específico de este package, hazlo aquí

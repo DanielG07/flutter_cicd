@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/chenk/Documents/Vitam/vitam_usuario/**)",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_evaluate",
+      "Bash(openspec list:*)",
+      "Bash(openspec show:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

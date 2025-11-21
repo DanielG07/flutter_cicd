@@ -1,0 +1,28 @@
+name: design_system_widgetbook
+resolution: workspace
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  design_system:
+    path: ../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  widgetbook: ^3.10.0
+  widgetbook_annotation: ^3.0.0
+  widgetbook_generator: ^3.10.0
+  build_runner: ^2.4.6
+  # usuario:
+  #   path: ../../vitam_usuario
+
+flutter:
+  uses-material-design: true
