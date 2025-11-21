@@ -46,6 +46,6 @@ melos:
             cd packages/design_system/widgetbook
             flutter pub get
             flutter pub run build_runner build
-            flutter build web --release
+            flutter build web --release --base-href /flutter_cicd/
 dev_dependencies:
   melos: ^7.1.0
